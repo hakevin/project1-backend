@@ -1,0 +1,170 @@
+DROP TABLE ers_reimbursement;
+DROP TABLE ers_reimbursement_status;
+DROP TABLE ers_reimbursement_type;
+DROP TABLE ers_users;
+DROP TABLE ers_user_roles; 
+
+CREATE TABLE ers_reimbursement (
+  reimb_id          INT    NOT NULL,
+  reimb_amount      INT    NOT NULL,
+  reimb_submitted   TIMESTAMP NOT NULL,
+  reimb_resolved    TIMESTAMP,
+  reimb_description VARCHAR(250),
+  reimb_author      INT    NOT NULL,
+  reimb_resolver    INT,
+  reimb_status_id   INT    NOT NULL,
+  reimb_type_id     INT    NOT NULL,
+  CONSTRAINT ers_reimbursement_pk PRIMARY KEY (reimb_id)
+);
+
+drop sequence reimb_id_seq
+CREATE SEQUENCE reimb_id_seq
+    START WITH 8 
+INCREMENT BY 1;
+
+-- Current reimbursement statuses: APPROVED, PENDING and DENIED
+CREATE TABLE ers_reimbursement_status (
+  reimb_status_id INT       NOT NULL,
+  reimb_status    VARCHAR(10) NOT NULL,
+  CONSTRAINT reimb_status_pk PRIMARY KEY (reimb_status_id)
+);
+
+-- Current reimbursement types: LODGING, TRAVEL, FOOD or OTHER
+CREATE TABLE ers_reimbursement_type (
+  reimb_type_id INT       NOT NULL,
+  reimb_type    VARCHAR(10) NOT NULL,
+  CONSTRAINT reimb_type_pk PRIMARY KEY (reimb_type_id)
+);
+
+CREATE TABLE ers_users (
+  ers_users_id    INT        NOT NULL,
+  ers_username    VARCHAR(50)  NOT NULL UNIQUE,
+  ers_password    VARCHAR(100)  NOT NULL,
+  user_first_name VARCHAR(100) NOT NULL,
+  user_last_name  VARCHAR(100) NOT NULL,
+  user_email      VARCHAR(150) NOT NULL UNIQUE,
+  user_role_id    INT        NOT NULL,
+  CONSTRAINT ers_users_pk PRIMARY KEY (ers_users_id)
+);
+
+drop sequence users_id_seq
+CREATE SEQUENCE users_id_seq
+    START WITH 9 
+INCREMENT BY 1;
+
+CREATE TABLE ers_user_roles (
+  ers_user_role_id INT       NOT NULL,
+  user_role        VARCHAR(20) NOT NULL,
+  CONSTRAINT ers_user_roles_pk PRIMARY KEY (ers_user_role_id)
+);
+
+
+-- -- ERS_REIMBURSEMENT table foreign keys
+--authorization: creating the reimbursement/requests
+ ALTER TABLE ers_reimbursement
+  ADD CONSTRAINT ers_users_fk_auth
+  FOREIGN KEY (reimb_author)
+ REFERENCES ers_users (ers_users_id);
+
+--resolver: finalizes request
+ ALTER TABLE ers_reimbursement
+ ADD CONSTRAINT ers_users_fk_reslvr
+ FOREIGN KEY (reimb_resolver)
+ REFERENCES ers_users (ers_users_id);
+
+-- edit table to create foreign key constraint
+ALTER TABLE ers_reimbursement
+  ADD CONSTRAINT ers_reimbursement_status_fk
+FOREIGN KEY (reimb_status_id)
+REFERENCES ers_reimbursement_status (reimb_status_id);
+
+ALTER TABLE ers_reimbursement
+  ADD CONSTRAINT ers_reimbursement_type_fk
+FOREIGN KEY (reimb_type_id)
+REFERENCES ers_reimbursement_type (reimb_type_id);
+
+-- ERS_USERS table foreign keys
+ALTER TABLE ers_users
+  ADD CONSTRAINT user_roles_fk
+FOREIGN KEY (user_role_id)
+REFERENCES ers_user_roles (ers_user_role_id);
+
+
+
+INSERT INTO ers_reimbursement_status
+VALUES (1, 'Approved');
+INSERT INTO ers_reimbursement_status
+VALUES (2, 'Pending');
+INSERT INTO ers_reimbursement_status
+VALUES (3, 'Denied');
+
+
+INSERT INTO ers_reimbursement_type
+VALUES (1, 'Lodging');
+INSERT INTO ers_reimbursement_type
+VALUES (2, 'Travel');
+INSERT INTO ers_reimbursement_type
+VALUES (3, 'Food');
+INSERT INTO ers_reimbursement_type
+VALUES (4, 'Other');
+
+INSERT INTO ers_user_roles (ers_user_role_id, user_role) VALUES (1, 'Employee');
+INSERT INTO ers_user_roles (ers_user_role_id, user_role) VALUES (2, 'Finance Manager');
+
+
+INSERT INTO ers_users (ers_users_id, ers_username, ers_password, user_first_name, user_last_name, user_email, user_role_id)
+VALUES (1, 'kevinha', 'a12345', 'Kevin', 'Ha', 'kevinha@yahoo.com', 1);
+INSERT INTO ers_users (ers_users_id, ers_username, ers_password, user_first_name, user_last_name, user_email, user_role_id)
+VALUES (2, 'cassidypath', 'a12345', 'Cassidy', 'Path', 'cassidy@gmail.com', 2);
+INSERT INTO ers_users (ers_users_id, ers_username, ers_password, user_first_name, user_last_name, user_email, user_role_id)
+VALUES (3, 'son', 'a12345', 'Son', 'Truong', 'son@gmail.com', 1);
+INSERT INTO ers_users (ers_users_id, ers_username, ers_password, user_first_name, user_last_name, user_email, user_role_id)
+VALUES (4, 'kevin', 'a12345', 'Kevin', 'H', 'kevin2@gmail.com', 1);
+INSERT INTO ers_users (ers_users_id, ers_username, ers_password, user_first_name, user_last_name, user_email, user_role_id)
+VALUES (5, 'cassidy', 'a12345', 'Cassidy', 'Path', 'cassidy2@gmail.com', 1);
+INSERT INTO ers_users (ers_users_id, ers_username, ers_password, user_first_name, user_last_name, user_email, user_role_id)
+VALUES (6, 'mitch', 'a12345', 'Mitch', 'G', 'mitch@yahoo.com', 1);
+INSERT INTO ers_users (ers_users_id, ers_username, ers_password, user_first_name, user_last_name, user_email, user_role_id)
+VALUES (7, 'devin', 'a12345', 'Devin', 'B', 'devin@gmail.com', 1);
+INSERT INTO ers_users (ers_users_id, ers_username, ers_password, user_first_name, user_last_name, user_email, user_role_id)
+VALUES (8, 'john', 'a12345', 'John', 'N', 'john@gmail.com', 1);
+
+
+
+INSERT INTO ers_reimbursement (reimb_id, reimb_amount, reimb_submitted, reimb_resolved, reimb_description, reimb_author, reimb_resolver, reimb_status_id, reimb_type_id)
+VALUES (1, 396.49, TIMESTAMP '2018-06-08 11:34:06', NULL, NULL, 7, 2, 2, 3);
+INSERT INTO ers_reimbursement (reimb_id, reimb_amount, reimb_submitted, reimb_resolved, reimb_description, reimb_author, reimb_resolver, reimb_status_id, reimb_type_id)
+VALUES (2, 245.41, TIMESTAMP '2018-09-01 13:15:18', NULL,
+        'ultricies eu nibh quisque id justo sit amet sapien dignissim vestibulum vestibulum ante ipsum', 6, 2,
+        2, 1);
+INSERT INTO ers_reimbursement (reimb_id, reimb_amount, reimb_submitted, reimb_resolved, reimb_description, reimb_author, reimb_resolver, reimb_status_id, reimb_type_id)
+VALUES (3, 538.57, TIMESTAMP '2018-04-06 01:02:08', NULL,
+        'molestie sed justo pellentesque viverra pede ac diam cras pellentesque volutpat dui maecenas tristique est et tempus semper est'
+        , 5, 2, 3, 3);
+INSERT INTO ers_reimbursement (reimb_id, reimb_amount, reimb_submitted, reimb_resolved, reimb_description, reimb_author, reimb_resolver, reimb_status_id, reimb_type_id)
+VALUES (4, 123.57, TIMESTAMP '2018-07-11 08:41:56', NULL,
+        'luctus ultricies eu nibh quisque id justo sit amet sapien dignissim vestibulum vestibulum ante ipsum', 4,
+        2, 1, 4);
+INSERT INTO ers_reimbursement (reimb_id, reimb_amount, reimb_submitted, reimb_resolved, reimb_description, reimb_author, reimb_resolver, reimb_status_id, reimb_type_id)
+VALUES (5, 160.96, TIMESTAMP '2018-10-01 01:01:13', NULL,
+        'cursus vestibulum proin eu mi nulla ac enim in tempor turpis nec euismod scelerisque quam turpis adipiscing'
+        , 3, 2, 3, 1);
+INSERT INTO ers_reimbursement (reimb_id, reimb_amount, reimb_submitted, reimb_resolved, reimb_description, reimb_author, reimb_resolver, reimb_status_id, reimb_type_id)
+VALUES (6, 1462.91, TIMESTAMP '2018-08-16 06:39:05', NULL, NULL, 8, 2, 1, 1);
+INSERT INTO ers_reimbursement (reimb_id, reimb_amount, reimb_submitted, reimb_resolved, reimb_description, reimb_author, reimb_resolver, reimb_status_id, reimb_type_id)
+VALUES (7, 946.18, TIMESTAMP '2018-09-29 19:38:15', NULL, NULL, 1, 2, 1, 1);
+
+select * from ers_users;
+select * from ers_reimbursement;
+select * from ers_user_roles;
+select * from ers_reimbursement_status;
+select * from ers_reimbursement_type;
+
+
+
+
+
+
+ssh -i closet-key.pem ec2-user@ec2-18-191-36-168.us-east-2.compute.amazonaws.com
+
+scp -i closet-key.pem jenkins.war ec2-user@ec2-18-191-36-168.us-east-2.compute.amazonaws.com:~/
